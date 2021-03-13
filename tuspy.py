@@ -61,7 +61,8 @@ def _request(req):
 
 
 def _requests(endpoint, method, headers, data):
-    req = MethodRequest(endpoint.encode("utf-8"), data, method=method)
+    # endpoint.encode("utf-8")
+    req = MethodRequest(endpoint, data, method=method)
     for k, v in headers.items():
         req.add_header(k, v)
 
@@ -224,7 +225,7 @@ def set_final_size(file_endpoint, size, headers, _log=None):
     _log.info('Setting upload length')
 
     headers['Upload-Length'] = str(size)
-    upload_chunk('', size, file_endpoint, headers=headers, _log=_log)
+    upload_chunk(bytes(), size, file_endpoint, headers=headers, _log=_log)
 
 
 def _get_offset(file_endpoint, headers=None, _log=None):
