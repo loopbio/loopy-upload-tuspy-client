@@ -17,7 +17,7 @@ class GUI(object):
         self._root.title('Loopy Upload Client')
 
         #self._root.geometry('500x300')
-        #self._root.resizable(width=False, height=True)
+        self._root.resizable(width=False, height=False)
 
         self._root.grid_columnconfigure(0, weight=1)
         self._root.grid_rowconfigure(0, weight=1)
@@ -31,19 +31,19 @@ class GUI(object):
         self._auth_ok = False
         self._progress = 0
 
-        def _label_entry(_lbl, _txt, _row, is_password=False, **gridpos):
+        def _label_entry(_lbl, _txt, _row, is_password=False, width=None, **gridpos):
             l = ttk.Label(self._frame, text=_lbl)
             l.grid(column=0, row=_row, sticky='W', padx=5, pady=5, **gridpos)
 
             sv = tk.StringVar()
             sv.set(_txt or '')
-            sve = ttk.Entry(self._frame, textvariable=sv, show="*" if is_password else None)
+            sve = ttk.Entry(self._frame, textvariable=sv, show="*" if is_password else None, width=width)
             sve.grid(column=1, row=_row, padx=5, pady=5, sticky="EW", **gridpos)
 
             return sv, sve
 
         self._url, self._urle = _label_entry('Loopy URL', 'https://app.loopb.io/file-upload', 1)
-        self._api_key, self._api_keye = _label_entry('API Key', '', 2)
+        self._api_key, self._api_keye = _label_entry('API Key', '', 2, width=32)
         self._email, self._emaile = _label_entry('Email (optional)', '', 3)
 
         self._c_button = ttk.Button(self._frame, text='Connect', state='enabled')
