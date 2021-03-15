@@ -1,7 +1,9 @@
 # loopy-upload-tuspy-client
 
 Pure python implementation of TUS resumable upload protocol compatible and suitable for video uploads to
-http://app.loopb.io. The `tuspy` file may also be used with other compatible TUS servers.
+[loopy](http://loopbio.com/loopy/) accounts on http://app.loopb.io and elsewhere.
+
+The `tuspy` file may also be used with other compatible TUS servers.
 
 The `loopyupload` file implements loopy-specific authentication and can be used to upload files and
 imgstores to your loopy account.
@@ -27,8 +29,8 @@ uploader.upload('/path/to/video.mp4')
 
 ## GUI Uploader
 
-We have created a standalone GUI installer for uploading movies and imgstores on Mac and Windows. On
-Linux you can run the GUI from the git checkout using `python gui.py`.
+We have created a standalone GUI installer for uploading movies and imgstores on Mac and Windows to
+[Loopy online video analysis](http://loopbio.com/loopy/). On Linux you can run the GUI from the git checkout using `python gui.py`.
 
 ![](screenshot.png)
 
@@ -46,6 +48,12 @@ Linux you can run the GUI from the git checkout using `python gui.py`.
     administration password to allow running unsigned
     applications or applications from unknown developers
   * note: OSX 11.X version is not yet supported
+
+#### Usage
+
+* enter your API key from your account details page on http://app.loopb.io
+* if you are uploading to a [loopy on-site](http://loopbio.com/loopy/#onsite) instance then adjust the _Loopy URL_ to match that you were provided by loopbio or your
+  IT administrator
 
 ## LICENSE
 MIT, based on https://github.com/cenkalti/tus.py
