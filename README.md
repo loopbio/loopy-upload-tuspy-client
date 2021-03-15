@@ -34,17 +34,18 @@ Linux you can run the GUI from the git checkout using `python gui.py`.
 
 #### Installation
 
-* (On Windows)
+* (On Windows 10)
   * download the [latest release](https://github.com/loopbio/loopy-upload-tuspy-client/releases) `LoopyUpload.exe` file
   * double click on the executable
   * bypass or agree to any security dialogs which try to prevent you from running unsigned
     applications or applications from unknown developers
-* (On Mac)
+* (On Mac 10.14/10.15)
   * download the [latest release](https://github.com/loopbio/loopy-upload-tuspy-client/releases) `LoopyUpload.zip` file
   * extract the zip file to a `LoopyUpload.app` file
   * right click on the `.app`. file and click open. you may be prompted to enter an
     administration password to allow running unsigned
     applications or applications from unknown developers
+  * note: OSX 11.X version is not yet supported
 
 ## LICENSE
 MIT, based on https://github.com/cenkalti/tus.py
