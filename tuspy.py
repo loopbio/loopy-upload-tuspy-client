@@ -31,6 +31,7 @@ class MethodRequest(urllib.request.Request):
 
 class TusError(Exception):
     def __init__(self, message, response=None, code=None):
+        self.message = message  # python2 compatibility
         super(TusError, self).__init__(message)
         self.response = response
         self.code = code
@@ -69,7 +70,7 @@ def _requests(endpoint, method, headers, data):
     try:
         return _request(req)
     except urllib.error.HTTPError as e:
-        raise TusError(str(e), code=e.code)
+        raise TusError(e, code=e.code)
     except urllib.error.URLError:
         raise TusError('connection error')
 

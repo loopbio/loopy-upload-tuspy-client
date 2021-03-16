@@ -1,13 +1,31 @@
+import math
 import os.path
-import threading
 import logging
+import threading
 
 from six.moves import tkinter as tk
 from six.moves import tkinter_ttk as ttk
 from six.moves import tkinter_tkfiledialog as tkfiledialog
 
 from loopyupload import LoopyTusUploader
-from tuspy import requests_options
+from tuspy import requests_options, TusError
+
+
+def bytes2human(n, format='%(value).1f%(symbol)s', symbols='customary'):
+
+    n = int(n)
+    if n < 0:
+        raise ValueError("n < 0")
+    symbols = ('B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
+    prefix = {}
+    for i, s in enumerate(symbols[1:]):
+        prefix[s] = 1 << (i + 1) * 10
+    for symbol in reversed(symbols[1:]):
+        if n >= prefix[symbol]:
+            value = float(n) / prefix[symbol]
+            return format % locals()
+    return format % dict(symbol=symbols[0], value=n)
+
 
 
 class GUI(object):
@@ -27,8 +45,11 @@ class GUI(object):
         self._frame.columnconfigure(1, weight=3)
 
         self._u_thread = None
+        self._u_error = None
 
         self._auth_ok = False
+        self._auth_ok_message = 'Ready'
+
         self._progress = 0
 
         def _label_entry(_lbl, _txt, _row, is_password=False, width=None, **gridpos):
@@ -69,6 +90,13 @@ class GUI(object):
             if int(ms) > 0:
                 self._auth_ok = True
 
+                try:
+                    rem = max(0., float(resp.headers['X-Loopy-User-Space-Remaining']))
+                    if not math.isinf(rem):
+                        self._auth_ok_message = 'Ready (%sB space remaining)' % bytes2human(rem)
+                except:
+                    pass
+
         t = threading.Thread(target=_connect)
         t.daemon = True
         t.start()
@@ -101,8 +129,11 @@ class GUI(object):
             elif (self._progress == 100.0):
                 status = 'Upload Finished'
                 offer_upload = True
+            elif self._u_error:
+                status = self._u_error
+                offer_upload = True
             else:
-                status = 'Ready'
+                status = self._auth_ok_message
                 offer_upload = True
 
         else:
@@ -147,7 +178,13 @@ class GUI(object):
                 logging.debug('progress: %s' % self._progress)
 
             uploader = LoopyTusUploader(url, auth)
-            uploader.upload(path, progress_callback=_log_progress)
+            try:
+                self._u_error = None
+                uploader.upload(path, progress_callback=_log_progress)
+            except TusError as _te:
+                self._u_error = 'Upload failed: %s' % _te.message
+            except Exception:
+                self._u_error = 'Upload failed'
 
         self._u_thread = threading.Thread(target=_upload)
         self._u_thread.daemon = True
