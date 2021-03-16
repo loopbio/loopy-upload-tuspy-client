@@ -64,9 +64,10 @@ class LazyTarImgstore(object):
 
             yield (path, buf)
 
-            # only count the progress of writing the files, disregard the headers
-            written += (sz if path is not None else 0)
-            progress_callback(written / float(self._size))
+            if progress_callback is not None:
+                # only count the progress of writing the files, disregard the headers
+                written += (sz if path is not None else 0)
+                progress_callback(written / float(self._size))
 
     @staticmethod
     def iter_directory_chunks_or_files(path):
@@ -157,13 +158,18 @@ class LoopyTusUploader(object):
                    _log=self._log)
 
     def upload_directory(self, path, title='unknown-title', progress_callback=None):
-        def _progress(_p):
-            self._log.debug('progress: %.1f%%' % (_p * 100))
 
         self._log.info('upload directory: %r (title: %r)' % (path, title))
 
         laxy = LazyTarImgstore.new_from_directory(path)
         self._check_size(laxy.size)
+
+        def _maybe_progress(_offset):
+            _progress = min(100., _offset / float(laxy.size))
+            if progress_callback:
+                progress_callback(_progress)
+            else:
+                self._log.debug('progress: %.1f%%' % (_progress * 100))
 
         headers = dict(self._headers)
 
@@ -178,20 +184,25 @@ class LoopyTusUploader(object):
                                _log=self._log)
 
         offset = 0
-        for path, buf in laxy.iter_chunks_or_files(progress_callback=progress_callback or _progress):
+        for path, buf in laxy.iter_chunks_or_files(progress_callback=None):
             if path is not None:
                 self._log.debug('file chunk')
                 with open(path, 'rb') as file_obj:
                     data = file_obj.read(self._chunk_size)
                     while data:
                         upload_chunk(data, offset, file_endpoint, headers=headers, _log=self._log)
+
                         offset += len(data)
+                        _maybe_progress(offset)
+
                         data = file_obj.read(self._chunk_size)
 
             if buf is not None:
                 self._log.debug('raw chunk')
                 upload_chunk(buf, offset, file_endpoint, headers=headers, _log=self._log)
+
                 offset += len(buf)
+                _maybe_progress(offset)
 
         set_final_size(file_endpoint, offset, headers, _log=self._log)
 
